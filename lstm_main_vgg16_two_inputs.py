@@ -18,7 +18,7 @@ def get_num_params():
     print('Num of parameters:', total_parameters)
     sys.stdout.flush()
 
-def train_one_epoch(sess, capsnet, data_gen, writer, loss_summary, prev_batch_num):
+def train_one_epoch(sess, lstm_network, data_gen, writer, loss_summary, prev_batch_num):
     start_time = time.time()
     # continues until no more training data is generated
     batch, s_losses = 0.0, 0
@@ -38,23 +38,24 @@ def train_one_epoch(sess, capsnet, data_gen, writer, loss_summary, prev_batch_nu
         if config.multi_gpu and len(x_batch) == 1:
             print('Batch size of one, not running')
             continue
-        _, outputs = sess.run([capsnet.train_op, loss_summary],
-                           feed_dict={capsnet.x_vid_input: x_batch2, capsnet.y_input: bbox_batch2,
-                                      capsnet.x_seg_input: x_seg_batch, capsnet.y_input_mask: mask_batch2})
+        _, summary, s_loss = sess.run([lstm_network.train_op, loss_summary, lstm_network.segmentation_loss],
+                           feed_dict={lstm_network.x_vid_input: x_batch2, lstm_network.y_input: bbox_batch2,
+                                      lstm_network.x_seg_input: x_seg_batch, lstm_network.y_input_mask: mask_batch2})
 
-        # s_losses += s_loss
-        # seg_acc += s_acc
-
+        s_losses += s_loss
+#         seg_acc += s_acc
+#         print('s_loss:',s_loss)
         batch += 1
-      
-        writer.add_summary(outputs, prev_batch_num+batch)
+          
+        writer.add_summary(summary, prev_batch_num+batch)
         
         if batch % config.batches_until_print == 0:
             print('Finished %d batches. %d(s) since start.'
                   % (batch, time.time() - start_time), end='\r')
             sys.stdout.flush()
-
-    return [outputs / batch, prev_batch_num+batch]
+#         if batch // 5 == 0:
+#             break
+    return [s_losses/batch, prev_batch_num+batch]
 
 def train_network(gpu_config):
     lstm_network = FullNetwork(input_shape=config.hr_frame_size)
