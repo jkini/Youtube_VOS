@@ -1,7 +1,7 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
-data_dir='coco_transforms'
+data_dir='../Youtube_VOS_Pretrain/'
 
 batch_size = 3
 n_epochs = 35
