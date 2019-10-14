@@ -56,8 +56,12 @@ def load_video(file_name, tr_or_val='train', shuffle=True, n_frames=8, frame_ski
     frames = []
     for f in range(start_frame, start_frame + n_frames*frame_skip, frame_skip):
         try:
-            frames.append(imread(video_dir + frame_names[f]), mode='RGB')
-        except:
+            frames.append(imread(video_dir + frame_names[f], mode='RGB'))
+        except Exception as ex:
+            print('Exception:', ex)
+            sys.stdout.flush()        
+            print('File name:', file_name)
+            sys.stdout.flush()     
             frames.append(frames[-1])
 
     video = np.stack(frames, axis=0)
@@ -66,16 +70,23 @@ def load_video(file_name, tr_or_val='train', shuffle=True, n_frames=8, frame_ski
     frames, y_mask = [], []
     for f in range(start_frame, start_frame + n_frames*frame_skip, frame_skip):
         try:
-            if (seg_frame_names[f][:-4] + '.jpg') not in orig_frame_names:
-                frames.append(frames[-1])
-                y_mask.append(0.0)
-            else:
-                frames.append(np.array(Image.open(segment_dir + seg_frame_names[f])))
-                y_mask.append(1.0)
+            frames.append(np.array(Image.open(segment_dir + seg_frame_names[f])))
+            y_mask.append(1.0)
         except:
             frames.append(frames[-1])
             y_mask.append(0.0)
 
+        # try:
+            # if (seg_frame_names[f][:-4] + '.jpg') not in orig_frame_names:
+                # frames.append(frames[-1])
+                # y_mask.append(0.0)
+            # else:
+                # frames.append(np.array(Image.open(segment_dir + seg_frame_names[f])))
+                # y_mask.append(1.0)
+        # except:
+            # frames.append(frames[-1])
+            # y_mask.append(0.0)
+        
     segmentation = np.stack(frames, axis=0)
 
     return np.asarray(video), np.asarray(segmentation), np.asarray(y_mask)
