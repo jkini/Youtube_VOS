@@ -1,1 +1,7 @@
-test
+coco_transforms/*
+vgg16.npy
+models/*
+logs/*
+__pychache__/*
+.ipynb_checkpoints/*
+fc6_1_np.npy
