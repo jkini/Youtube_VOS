@@ -5,8 +5,8 @@ import convlstmcell
 from config import train, inner_frames
 
 VGG_MEAN = [103.939, 116.779, 123.68]
-weight_dict = np.load('../vgg16.npy', encoding='latin1', allow_pickle = True).item()
-fc6_np = np.load('../fc6_1_np.npy', allow_pickle = True)
+weight_dict = np.load('vgg16.npy', encoding='latin1', allow_pickle = True).item()
+fc6_np = np.load('fc6_1_np.npy', allow_pickle = True)
 print("npy file loaded")
 
 def get_fc_t_filter(name, inc_seg):

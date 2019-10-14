@@ -35,7 +35,7 @@ hr_segment_coef = 0.02
 
 dataset = 'YoutubeVOS'
 wait_for_data = 5  # in seconds
-batches_until_print = 100
+batches_until_print = 1
 
 inv_temp = 0.5
 inv_temp_delta = 0.1

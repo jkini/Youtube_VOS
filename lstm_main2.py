@@ -50,7 +50,7 @@ def train_one_epoch(sess, capsnet, data_gen, writer, loss_summary, prev_batch_nu
         writer.add_summary(outputs, prev_batch_num+batch)
         
         if batch % config.batches_until_print == 0:
-            print('Finished %d batches. %d(s) since start. Avg Segmentation Loss is %.4f.'
+            print('Finished %d batches. %d(s) since start.'
                   % (batch, time.time() - start_time), end='\r')
             sys.stdout.flush()
 
@@ -61,10 +61,8 @@ def train_network(gpu_config):
 
     with tf.Session(graph=lstm_network.graph, config=gpu_config) as sess:
         tf.global_variables_initializer().run()
-        
-        loss_summary = tf.summary.scalar('loss', lstm_network.segmentation_loss)
-
-        writer = tf.summary.FileWriter('./logs/summary', sess.graph)
+        writer = tf.summary.FileWriter('logs/model_{0}'.format(config.model_num), sess.graph)
+        loss_summary = tf.summary.scalar('seg_loss', lstm_network.segmentation_loss)
         prev_batch_num=0
         get_num_params()
 
