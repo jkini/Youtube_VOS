@@ -65,7 +65,7 @@ def train_network(gpu_config):
         loss_summary = tf.summary.scalar('loss', lstm_network.segmentation_loss)
 
         writer = tf.summary.FileWriter('./logs/summary', sess.graph)
-
+        prev_batch_num=0
         get_num_params()
 
         # if config.use_trained_weights:
@@ -108,8 +108,8 @@ def train_network(gpu_config):
                 except:
                     print('Failed to save network!!!')
                     sys.stdout.flush()
-        
-   	writer.close()
+
+        writer.close()
 
     tf.reset_default_graph()
 
@@ -119,5 +119,4 @@ def main():
     train_network(gpu_config)
 
 main()
-
 
