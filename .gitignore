@@ -5,3 +5,4 @@ logs/*
 __pychache__/*
 .ipynb_checkpoints/*
 fc6_1_np.npy
+pretrain_data.zip
