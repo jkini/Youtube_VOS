@@ -5,8 +5,8 @@ import convlstmcell
 from config import train, inner_frames
 
 VGG_MEAN = [103.939, 116.779, 123.68]
-weight_dict = np.load('vgg16.npy', encoding='latin1').item()
-fc6_np = np.load('fc6_1_np.npy')
+weight_dict = np.load('../vgg16.npy', encoding='latin1', allow_pickle = True).item()
+fc6_np = np.load('../fc6_1_np.npy', allow_pickle = True)
 print("npy file loaded")
 
 def get_fc_t_filter(name, inc_seg):
@@ -131,20 +131,19 @@ def create_vgg_initializer(input_img, input_seg):
 
         # Convert RGB to BGR
         red, green, blue, seg = tf.split(axis=3, num_or_size_splits=4, value=rgb_scaled)
-	seg = seg - 127.5
+        seg = seg - 127.5
         bgr = tf.concat(axis=3, values=[
             blue - VGG_MEAN[0],
             green - VGG_MEAN[1],
             red - VGG_MEAN[2]
         ])
         #assert bgr.get_shape().as_list()[1:] == [224, 224, 4]
-
         conv1_1 = conv_layer(bgr, "conv1_1")
-        conv1_1_seg = tf.layers.conv2d(seg, filters=32, kernel_size=(3,3), activation='relu', padding='SAME')
+        conv1_1_seg = tf.layers.conv2d(seg, filters=32, kernel_size=(3, 3), activation='relu', padding='SAME')
 
         conv1_1 = tf.concat([conv1_1, conv1_1_seg], axis=3)
-   
- 	conv1_1 = tf.layers.conv2d(conv1_1, filters=64, kernel_size=(1,1), activation='relu', padding='SAME')
+
+        conv1_1 = tf.layers.conv2d(conv1_1, filters=64, kernel_size=(1, 1), activation='relu', padding='SAME')
 
         conv1_2 = conv_layer(conv1_1, "conv1_2")
         pool1 = max_pool(conv1_2, 'pool1')
@@ -251,6 +250,5 @@ def create_decoder(h_input):
         output_seg = tf.reshape(output_seg, [-1, inner_frames-1]+list(output_seg.get_shape())[1:])
 
         return output_seg
-
 
 
