@@ -2,10 +2,8 @@ coco_transforms/*
 vgg16.npy
 models/*
 logs/*
-__pychache__/*
 .ipynb_checkpoints/*
 fc6_1_np.npy
 pretrain_data.zip
 single_object_resnet/logs/*
-single_object_resnet/__pycache__/*
 single_object_resnet/models/* 
