@@ -7,5 +7,5 @@ __pychache__/*
 fc6_1_np.npy
 pretrain_data.zip
 single_object_resnet/logs/*
-single_object_resnet/__pycache/*
+single_object_resnet/__pycache__/*
 single_object_resnet/models/* 
