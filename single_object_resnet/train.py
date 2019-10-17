@@ -18,7 +18,7 @@ def get_num_params():
     print('Num of parameters:', total_parameters)
     sys.stdout.flush()
 
-def train_one_epoch(sess, net, data_gen, writer, loss_summary, prev_batch_num):
+def train_one_epoch(sess, net, data_gen, writer, prev_batch_num):
     start_time = time.time()
     # continues until no more training data is generated
     batch, s_losses = 0.0, 0
@@ -37,7 +37,7 @@ def train_one_epoch(sess, net, data_gen, writer, loss_summary, prev_batch_num):
         if config.multi_gpu and len(x_batch) == 1:
             print('Batch size of one, not running')
             continue
-        _, summary, s_loss = sess.run([net.train_op, loss_summary, net.segmentation_loss],
+        _, summary, s_loss = sess.run([net.train_op, net.summary, net.segmentation_loss],
                            feed_dict={net.x_vid_input: x_batch2, net.y_input: bbox_batch2,
                                       net.x_seg_input: x_seg_batch, net.y_input_mask: mask_batch2})
 
@@ -58,7 +58,6 @@ def train_network(gpu_config):
     with tf.Session(graph=net.graph, config=gpu_config) as sess:
         tf.global_variables_initializer().run()
         writer = tf.summary.FileWriter('{0}model_{1}'.format(config.tf_logs_dir,config.model_num), sess.graph)
-        loss_summary = tf.summary.scalar('seg_loss', net.segmentation_loss)
         prev_batch_num=0
         get_num_params()
 
@@ -77,7 +76,7 @@ def train_network(gpu_config):
             # Trains network for 1 epoch
             data_gen = TrainDataGen(config.wait_for_data, crop_size=(config.img_height, config.img_width), n_frames=config.n_frames,
                                     rand_frame_skip=config.rand_frame_skip, use_all=config.use_all_frames)
-            seg_loss, prev_batch_num = train_one_epoch(sess, net, data_gen, writer, loss_summary, prev_batch_num)
+            seg_loss, prev_batch_num = train_one_epoch(sess, net, data_gen, writer, prev_batch_num)
 
             # config.write_output('Epoch%d: SL: %.4f.\n' % (ep, seg_loss))
 
