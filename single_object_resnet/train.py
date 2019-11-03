@@ -135,4 +135,3 @@ def main():
     train_network(gpu_config)
 
 main()
-
