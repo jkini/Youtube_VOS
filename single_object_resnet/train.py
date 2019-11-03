@@ -25,7 +25,7 @@ def train_one_epoch(sess, net, data_gen, writer, prev_batch_num):
     while data_gen.has_data(config.batch_size):
         batch_data = data_gen.get_batch(config.batch_size)
         x_batch, bbox_batch, mask_batch = batch_data
-        x_seg_batch = [seg[0] for seg in bbox_batch]
+        x_seg_batch = [seg[:-1] for seg in bbox_batch]
 
         #n_frames = np.random.randint(6, 12)
         x_batch2, bbox_batch2, mask_batch2 = [], [], []
@@ -38,7 +38,7 @@ def train_one_epoch(sess, net, data_gen, writer, prev_batch_num):
             print('Batch size of one, not running')
             continue
         _, summary, s_loss = sess.run([net.train_op, net.summary, net.segmentation_loss],
-                           feed_dict={net.x_vid_input: x_batch2, net.y_input: bbox_batch2,
+                           feed_dict={net.x_input: x_batch2, net.y_input: bbox_batch2,
                                       net.x_seg_input: x_seg_batch, net.y_input_mask: mask_batch2})
 
         s_losses += s_loss
@@ -57,6 +57,30 @@ def train_network(gpu_config):
 
     with tf.Session(graph=net.graph, config=gpu_config) as sess:
         tf.global_variables_initializer().run()
+       
+        if config.use_resnet_weights:
+            old_model_scope = ''
+            mem_model_scope = 'mem_encoder/'
+            curr_model_scope = 'curr_encoder/'
+            
+            mem_map = {variable.name[len(mem_model_scope):]: variable
+                            for variable in net.variables_to_restore
+                            if variable.name.startswith(mem_model_scope)}
+            mem_map = {name.split(":")[0]: variable
+                            for name, variable in mem_map.items()
+                            if name.startswith(old_model_scope)}
+            mem_saver = tf.train.Saver(mem_map)
+            mem_saver.restore(sess, config.resnet_file_name)
+
+            curr_map = {variable.name[len(curr_model_scope):]: variable
+                                for variable in net.variables_to_restore
+                                if variable.name.startswith(curr_model_scope)}
+            curr_map = {name.split(":")[0]: variable
+                                for name, variable in curr_map.items()
+                                if name.startswith(old_model_scope)}
+            curr_saver = tf.train.Saver(curr_map)
+            curr_saver.restore(sess, config.resnet_file_name)
+
         writer = tf.summary.FileWriter('{0}model_{1}'.format(config.tf_logs_dir,config.model_num), sess.graph)
         prev_batch_num=0
         get_num_params()
@@ -111,4 +135,3 @@ def main():
     train_network(gpu_config)
 
 main()
-
